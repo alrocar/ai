@@ -31,4 +31,4 @@ docs: rename GitAI to gai in README
 
 The `gc` alias automatically uses the last `gai` generated message. If no `gai` message exists, it falls back to `git commit --verbose` behavior.
 
-Requires: Python 3.8+, [uv](https://docs.astral.sh/uv/), Google Vertex AI 
+Requires: Python 3.8+, [uv](https://docs.astral.sh/uv/), Google Vertex AI
