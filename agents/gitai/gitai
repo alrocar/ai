@@ -4,22 +4,23 @@
 # Usage: ./gitai or gitai (if in PATH)
 # Example: gitai && git ai
 
+# Capture the original working directory
+ORIGINAL_DIR="$(pwd)"
+
 # Resolve the actual script location, following symlinks
-if [[ -L "${BASH_SOURCE[0]}" ]]; then
-    # If this script is a symlink, resolve it
-    SCRIPT_PATH=$(readlink "${BASH_SOURCE[0]}")
-    # If the resolved path is relative, make it absolute
-    if [[ ! "$SCRIPT_PATH" = /* ]]; then
-        SCRIPT_PATH="$(dirname "${BASH_SOURCE[0]}")/$SCRIPT_PATH"
-    fi
-else
-    SCRIPT_PATH="${BASH_SOURCE[0]}"
-fi
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do
+    DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
+    SOURCE="$(readlink "$SOURCE")"
+    [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$(cd -P "$(dirname "$SOURCE")" && pwd)"
 
-SCRIPT_DIR="$(cd "$(dirname "$SCRIPT_PATH")" && pwd)"
+# Change to the script directory for uv to work correctly
+cd "$SCRIPT_DIR"
 
-# Run the Git AI agent and capture the output
-COMMIT_MSG=$(cd "$SCRIPT_DIR" && uv run python git_agent.py)
+# Pass the original directory to the Python script
+COMMIT_MSG=$(GITAI_ORIGINAL_DIR="$ORIGINAL_DIR" uv run python git_agent.py)
 
 # Store in environment variable and a temp file for persistence across shells
 echo "$COMMIT_MSG" > /tmp/gitai_last_commit
