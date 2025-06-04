@@ -18,11 +18,14 @@ The agent uses VertexAI, you should configure your `GOOGLE_APPLICATION_CREDENTIA
 
 ```bash
 # stage the files to commit
-git add .
+> git add .
 # generate a commit message
-gitai
+> gitai
+docs: rename GitAI to gitai in README
 # use the previously generated message in git commit
-git ai
+> git ai
+[main a4f9eb7] docs: rename GitAI to gitai in README
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 ```
 
 Requires: Python 3.8+, [uv](https://docs.astral.sh/uv/), Google Vertex AI 
