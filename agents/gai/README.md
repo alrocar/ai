@@ -9,7 +9,6 @@ git clone https://github.com/your-username/gai.git
 cd gai
 uv sync
 sudo ln -s $(pwd)/gai /usr/local/bin/gai
-git config --global alias.ai '!git commit -m "$(cat /tmp/gai_last_commit)"'
 # create an alias in your bash profile
 alias gc="if [ -f /tmp/gai_last_commit ]; then git commit -m \"\$(cat /tmp/gai_last_commit)\"; else git commit --verbose; fi"
 ```
