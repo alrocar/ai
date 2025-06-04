@@ -10,7 +10,7 @@ cd gai
 uv sync
 sudo ln -s $(pwd)/gai /usr/local/bin/gai
 # create an alias in your bash profile
-alias gc="if [ -f /tmp/gai_last_commit ]; then git commit -m \"\$(cat /tmp/gai_last_commit)\"; else git commit --verbose; fi"
+alias gc="gai && git commit -m \"\$(cat /tmp/gai_last_commit)\""
 ```
 
 The agent uses VertexAI, you should configure your `GOOGLE_APPLICATION_CREDENTIALS` or use a different provider.
