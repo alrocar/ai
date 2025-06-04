@@ -1,6 +1,6 @@
-# GitAI
+# gitai
 
-AI-powered Git commit messages for staged changes.
+AI-powered git commit messages for staged changes.
 
 ## Install
 
