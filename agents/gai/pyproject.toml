@@ -1,0 +1,11 @@
+[project]
+name = "gai"
+version = "0.1.0"
+description = "An agent for all git things"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-cloud-aiplatform>=1.95.1",
+    "pydantic-ai==0.2.12",
+    "python-dotenv>=1.1.0",
+]
