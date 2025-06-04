@@ -12,19 +12,19 @@ import subprocess
 load_dotenv()
 
 def find_git_root():
-    """Find the root of the git repository"""
+    # Use the original directory passed from the shell script
+    original_dir = os.getenv('GITAI_ORIGINAL_DIR', os.getcwd())
     try:
         result = subprocess.run(
             ['git', 'rev-parse', '--show-toplevel'],
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            cwd=original_dir
         )
         return result.stdout.strip()
     except subprocess.CalledProcessError:
-        return os.getcwd()
-
-GIT_REPO_ROOT = find_git_root()
+        return original_dir
 
 git_server = MCPServerStdio(
     command="uvx",
@@ -32,11 +32,8 @@ git_server = MCPServerStdio(
     tool_prefix="git_",
 )
 
-SYSTEM_PROMPT = f"""
+SYSTEM_PROMPT = """
 You are a Git commit message generator. Your job is to analyze STAGED Git changes and output ONLY a clean commit message.
-
-IMPORTANT: The Git repository root is: {GIT_REPO_ROOT}
-Always use this path as the repository path for all Git operations.
 
 Your task:
 1. Check git status to see what files are STAGED for commit
@@ -69,7 +66,6 @@ When analyzing STAGED changes:
 - Mention documentation updates or README changes being committed
 - Group similar staged changes together in the description
 
-Use "{GIT_REPO_ROOT}" as the repository path for all Git operations.
 Focus ONLY on staged changes (git diff --cached), not unstaged or untracked files.
 Output ONLY the commit message - no other text, formatting, or explanations.
 """
@@ -89,38 +85,46 @@ agent = Agent(
 )
 
 async def generate_commit_message():
-    """Generate a commit message based on current STAGED changes"""
+    git_repo_root = find_git_root()
+    print(f"Debug: Git root detected as: {git_repo_root}", file=sys.stderr)
+    print(f"Debug: Current working directory: {os.getcwd()}", file=sys.stderr)
+    
     prompt = f"""
-    Analyze the STAGED changes in the repository at {GIT_REPO_ROOT} and generate a commit message.
+    You are working in the Git repository at: {git_repo_root}
     
-    1. Check git status to see what files are STAGED for commit
-    2. Analyze ONLY the staged changes with git diff --cached to understand what was modified
-    3. Generate a single commit message following conventional commit format based on STAGED changes only
+    Please run these Git commands in order:
+    1. git diff --cached --name-only
+    2. If there are staged files, run: git diff --cached
+    3. Generate a conventional commit message based on the staged changes
     
-    Use "{GIT_REPO_ROOT}" as the repository path for all Git operations.
+    Use the repository path: {git_repo_root}
     
-    IMPORTANT: Only analyze staged changes (git diff --cached). Ignore unstaged changes and untracked files.
-    Output ONLY the commit message text - no explanations, no formatting, no questions.
+    If no staged files are found, just say "No staged files found."
+    If staged files exist, output only the commit message.
     """
     
     try:
         async with agent.run_mcp_servers():
             result = await agent.run(prompt)
             commit_message = result.output.strip()
-
-            lines = commit_message.split('\n')
-            for line in lines:
-                line = line.strip()
-                if line and not line.startswith('#') and not line.startswith('*') and not line.startswith('-'):
-                    print(line)
-                    return
-
-            for line in lines:
-                line = line.strip()
-                if line:
-                    print(line)
-                    return
-
+            
+            if "No staged files found" in commit_message:
+                return
+            
+            if commit_message:
+                lines = commit_message.split('\n')
+                for line in lines:
+                    line = line.strip()
+                    if line and not line.startswith('#') and not line.startswith('*') and not line.startswith('-'):
+                        print(line)
+                        return
+                
+                for line in lines:
+                    line = line.strip()
+                    if line:
+                        print(line)
+                        return
+                        
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
         sys.exit(1)
