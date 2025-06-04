@@ -10,6 +10,8 @@ cd gai
 uv sync
 sudo ln -s $(pwd)/gai /usr/local/bin/gai
 git config --global alias.ai '!git commit -m "$(cat /tmp/gai_last_commit)"'
+# create an alias in your bash profile
+alias gc="if [ -f /tmp/gai_last_commit ]; then git commit -m \"\$(cat /tmp/gai_last_commit)\"; else git commit --verbose; fi"
 ```
 
 The agent uses VertexAI, you should configure your `GOOGLE_APPLICATION_CREDENTIALS` or use a different provider.
@@ -23,9 +25,11 @@ The agent uses VertexAI, you should configure your `GOOGLE_APPLICATION_CREDENTIA
 > gai
 docs: rename GitAI to gai in README
 # use the previously generated message in git commit
-> git ai
+> gc
 [main a4f9eb7] docs: rename GitAI to gai in README
  1 file changed, 2 insertions(+), 2 deletions(-)
 ```
+
+The `gc` alias automatically uses the last `gai` generated message. If no `gai` message exists, it falls back to `git commit --verbose` behavior.
 
 Requires: Python 3.8+, [uv](https://docs.astral.sh/uv/), Google Vertex AI 
