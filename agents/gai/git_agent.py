@@ -86,8 +86,8 @@ agent = Agent(
 
 async def generate_commit_message():
     git_repo_root = find_git_root()
-    print(f"Debug: Git root detected as: {git_repo_root}", file=sys.stderr)
-    print(f"Debug: Current working directory: {os.getcwd()}", file=sys.stderr)
+    # print(f"Debug: Git root detected as: {git_repo_root}", file=sys.stderr)
+    # print(f"Debug: Current working directory: {os.getcwd()}", file=sys.stderr)
     
     prompt = f"""
     You are working in the Git repository at: {git_repo_root}
